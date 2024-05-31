@@ -37,7 +37,7 @@ jobs:
           release_name="wcc-$tag-${{ matrix.target }}"
 
           # Build everything
-          dotnet publish --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+          dotnet publish WebsiteCertificateChecker/WebsiteCertificateChecker.csproj --runtime "${{ matrix.target }}" -c Release -o "$release_name"
 
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]; then
