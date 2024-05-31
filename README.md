@@ -1,12 +1,12 @@
 # Website Certificate Checker
 
-Usage: wcc [options] <url> [url] [url] ...
+Usage: wcc [options] \<url\> [url] [url] ...
 
 OPTIONS:
 
 -h, --help               Show this help screen
 
--f, --file <path>        Get urls from file
+-f, --file \<path\>      Get urls from file
 
 -t, --elapsed-time       Show elapsed time
 
