@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "WebsiteCertificateChecker": {
-      "commandName": "Project",
-      "commandLineArgs": "urls.txt -30"
-    }
-  }
-}
