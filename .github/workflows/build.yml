@@ -11,8 +11,29 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        kind: ['linux', 'windows', 'macOS', 'linux-arm', 'windows-arm', 'macOS-arm']
+        include:
+          - kind: linux
+            os: ubuntu-latest
+            target: linux-x64
+          - kind: windows
+            os: windows-latest
+            target: win-x64
+          - kind: macOS
+            os: macos-latest
+            target: osx-x64
+          - kind: linux-arm
+            os: ubuntu-latest
+            target: linux-arm64
+          - kind: windows-arm
+            os: windows-latest
+            target: win-arm64
+          - kind: macOS-arm
+            os: macos-latest
+            target: osx-arm64
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
