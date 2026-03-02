@@ -6,8 +6,11 @@ namespace WebsiteCertificateChecker
 {
     public static class CertificateChecker
     {
-        public static DateTime? GetCertificateExpirationDate(string url)
+        public static CertificateInfo GetCertificateInfo(string url)
         {
+            string? issuer = null;
+            DateTime? expiration = null;
+
             try
             {
                 var uri = new Uri(url);
@@ -16,18 +19,63 @@ namespace WebsiteCertificateChecker
 
                 sslStream.AuthenticateAsClient(uri.Host);
 
-                return sslStream.RemoteCertificate == null ? null : GetCertificateExpiration(sslStream.RemoteCertificate);
+                if (sslStream.RemoteCertificate != null)
+                {
+                    var cert = new X509Certificate2(sslStream.RemoteCertificate);
+
+                    issuer = ParseIssuer(cert.Issuer);
+                    expiration = cert.NotAfter;
+                }
             }
             catch
             {
-                return null;
             }
+
+            return new CertificateInfo()
+            {
+                Url = url,
+                Issuer = issuer,
+                ExpirationDate = expiration,
+            };
         }
 
-        private static DateTime? GetCertificateExpiration(X509Certificate certificate)
+        private static string ParseIssuer(string issuer)
         {
-            var cert = new X509Certificate2(certificate);
-            return cert.NotAfter;
+            var defaultValue = $"[{issuer}]";
+            var prefix = "O=";
+
+            var prefixStart = issuer.IndexOf(prefix);
+
+            if (prefixStart < 0)
+            {
+                return defaultValue;
+            }
+
+            var valueStart = prefixStart + prefix.Length;
+            int valueEnd;
+
+            if (issuer[valueStart] == '"')
+            {
+                valueStart++;
+
+                valueEnd = issuer.IndexOf('"', valueStart);
+
+                if (valueEnd < 0)
+                {
+                    return defaultValue;
+                }
+            }
+            else
+            {
+                valueEnd = issuer.IndexOf(',', valueStart);
+
+                if (valueEnd < 0)
+                {
+                    valueEnd = issuer.Length;
+                }
+            }
+
+            return issuer[valueStart..valueEnd];
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using ConsoleTable;
+using System.Collections.Concurrent;
 using WebsiteCertificateChecker;
 
 Console.Title = "Website Certificate Checker";
@@ -10,11 +11,7 @@ var certificateInfos = new ConcurrentBag<CertificateInfo>();
 var startTime = DateTime.Now;
 Parallel.ForEach(config.Urls, url =>
 {
-    certificateInfos.Add(new CertificateInfo
-    {
-        Url = url,
-        ExpirationDate = CertificateChecker.GetCertificateExpirationDate(url)
-    });
+    certificateInfos.Add(CertificateChecker.GetCertificateInfo(url));
 });
 var endTime = DateTime.Now;
 
@@ -27,13 +24,18 @@ if (config.ShowRemainingDays.HasValue)
     .ToList();
 }
 
+var table = new Table();
+
 foreach (var certificateInfo in finalCertificateInfos.OrderByDescending(o => o.ExpirationDate).ToList())
 {
-    certificateInfo.ShowCertificateInfo(config.Urls.Max(u => u.Length));
+    table.AddRow(certificateInfo.ToRow());
 }
+
+table.Write();
 
 if (config.ShowElapsedTime)
 {
+    Console.WriteLine();
     Console.WriteLine($"Time elapsed: {(endTime - startTime).Seconds}s {(endTime - startTime).Milliseconds}ms");
 }
 

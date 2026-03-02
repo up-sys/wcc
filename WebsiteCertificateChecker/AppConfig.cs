@@ -1,8 +1,10 @@
+using System.CommandLine;
+
 namespace WebsiteCertificateChecker;
 
 public class AppConfig
 {
-    public List<string> Urls { get; }
+    public List<string> Urls { get; private set; } = [];
     public int? ShowRemainingDays { get; private set; }
     public bool ShowElapsedTime { get; private set; }
 
@@ -10,15 +12,53 @@ public class AppConfig
     {
         if (args.Length == 0) ExitWithMessage("Nothing to do. Try to use -h or --help for help.");
 
-        if (args.Contains("-h") || args.Contains("--help")) ShowHelpAndExit();
+        bool exit = true;
 
-        ShowElapsedTime = args.Contains("-t") || args.Contains("--elapsed-time");
+        var urlsArgument = new Argument<string[]>("urls")
+        {
+            DefaultValueFactory = parseResult => [],
+        };
+        var fileOption = new Option<FileInfo>("--file", "-f")
+        {
+            Description = "Get urls from file",
+        };
+        var elapsedTimeOption = new Option<bool>("--elapsed-time", "-t")
+        {
+            Description = "Show elapsed time",
+        };
+        var remainingDaysOption = new Option<int?>("--remaining-days", "-d")
+        {
+            Description = "Show only certificates that expire in _ days",
+        };
 
-        Urls = args.Contains("-f") || args.Contains("--file") ? UrlHelper.GetUrlsFromFile(args[^1]) : GetUrlsFromArgs(args);
+        var rootCommand = new RootCommand();
+        rootCommand.Add(urlsArgument);
+        rootCommand.Add(fileOption);
+        rootCommand.Add(elapsedTimeOption);
+        rootCommand.Add(remainingDaysOption);
 
-        if (Urls.Count == 0) ExitWithMessage("No valid URL found.");
+        rootCommand.SetAction(parseResult =>
+        {
+            exit = false;
 
-        ShowRemainingDays = args.Contains("-14") ? 14 : args.Contains("-30") ? 30 : null;
+            ShowElapsedTime = parseResult.GetValue(elapsedTimeOption);
+            ShowRemainingDays = parseResult.GetValue(remainingDaysOption);
+
+            var file = parseResult.GetValue(fileOption);
+            var urls = parseResult.GetRequiredValue(urlsArgument);
+
+            Urls = file != null ? UrlHelper.GetUrlsFromFile(file.FullName) : GetUrlsFromArgs(urls);
+
+            if (Urls.Count == 0) ExitWithMessage("No valid URL found.");
+        });
+
+        var parseResult = rootCommand.Parse(args);
+        var exitCode = parseResult.Invoke();
+
+        if (exit)
+        {
+            Environment.Exit(exitCode);
+        }
     }
 
     private void ExitWithMessage(string message)
@@ -27,20 +67,8 @@ public class AppConfig
         Environment.Exit(1);
     }
 
-    private void ShowHelpAndExit()
-    {
-        Console.WriteLine("Usage: wcc [options] <url> [url] [url] ...");
-        Console.WriteLine("OPTIONS:");
-        Console.WriteLine("-h, --help \t\t Show this help screen");
-        Console.WriteLine("-f, --file <path> \t Get urls from file");
-        Console.WriteLine("-t, --elapsed-time \t Show elapsed time");
-        Console.WriteLine("-14 \t\t\t Show only certificates that expire in 14 days");
-        Console.WriteLine("-30 \t\t\t Show only certificates that expire in 30 days");
-        Environment.Exit(0);
-    }
-
     private List<string> GetUrlsFromArgs(string[] args)
     {
-        return args.Where(arg => !arg.StartsWith('-')).Select(UrlHelper.GetValidUrl).ToList();
+        return args.Select(UrlHelper.GetValidUrl).ToList();
     }
 }

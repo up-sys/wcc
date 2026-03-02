@@ -1,8 +1,11 @@
+using ConsoleTable;
+
 namespace WebsiteCertificateChecker
 {
     public class CertificateInfo
     {
         public string Url { get; init; } = default!;
+        public string? Issuer { get; init; }
         public DateTime? ExpirationDate { get; init; }
 
         private string ExpirationDateFormatted => ExpirationDate?.ToString("yyyy-MM-dd") ?? "N/A";
@@ -14,25 +17,32 @@ namespace WebsiteCertificateChecker
             _ => ConsoleColor.Green
         };
 
-        public void ShowCertificateInfo(int maxUrlLength)
+        public Row ToRow()
         {
-            Console.Write($"{Url.PadRight(maxUrlLength)}  Expiration date: ");
-            SetAndResetConsoleColor(TextColor, $"{ExpirationDateFormatted}");
+            var row = new Row();
+
+            row.AddCell(Url);
+            row.AddCell("Expiration date: " + new Text($"{ExpirationDateFormatted}", TextColor));
 
             if (ExpirationDate != null)
             {
-                Console.Write(" Remaining days: ");
-                SetAndResetConsoleColor(TextColor, $"{DaysRemainingToExpire}");
+                row.AddCell("Remaining days: " + new Text($"{DaysRemainingToExpire}", TextColor));
+            }
+            else
+            {
+                row.AddEmpty();
             }
 
-            Console.WriteLine();
-        }
+            if (Issuer != null)
+            {
+                row.AddCell($"Issuer: {Issuer}");
+            }
+            else
+            {
+                row.AddEmpty();
+            }
 
-        private void SetAndResetConsoleColor(ConsoleColor color, string text)
-        {
-            Console.ForegroundColor = color;
-            Console.Write(text);
-            Console.ResetColor();
+            return row;
         }
     }
 }
