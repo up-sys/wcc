@@ -2,20 +2,25 @@
 
 ```cli
 $ wcc google.com apple.com amazon.com facebook.com x.com
-https://amazon.com    Expiration date: 2025-01-08 Remaining days: 218
-https://x.com         Expiration date: 2024-10-30 Remaining days: 148
-https://apple.com     Expiration date: 2024-08-27 Remaining days: 85
-https://google.com    Expiration date: 2024-08-05 Remaining days: 62
-https://facebook.com  Expiration date: 2024-06-11 Remaining days: 7
+https://amazon.com    Expiration date: 2027-01-24  Remaining days: 325  Issuer: DigiCert Inc
+https://apple.com     Expiration date: 2026-05-27  Remaining days: 84   Issuer: Apple Inc.
+https://x.com         Expiration date: 2026-05-02  Remaining days: 59   Issuer: Let's Encrypt
+https://google.com    Expiration date: 2026-04-27  Remaining days: 53   Issuer: Google Trust Services
+https://facebook.com  Expiration date: 2026-03-12  Remaining days: 7    Issuer: DigiCert Inc
 ```
 
 ```cli
 $ wcc --help
-Usage: wcc [options] <url> [url] [url] ...
-OPTIONS:
--h, --help 		     Show this help screen
--f, --file <path>    Get urls from file
--t, --elapsed-time   Show elapsed time
--14 			     Show only certificates that expire in 14 days
--30 			     Show only certificates that expire in 30 days
+Usage:
+  wcc [<urls>...] [options]
+
+Arguments:
+  <urls>
+
+Options:
+  -?, -h, --help                         Show help and usage information
+  -f, --file <file>                      Get urls from file
+  -t, --elapsed-time                     Show elapsed time
+  -d, --remaining-days <remaining-days>  Show only certificates that expire in _ days
+  --version                              Show version
 ```
