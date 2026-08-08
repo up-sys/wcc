@@ -7,8 +7,6 @@
         private static string Separator => "  ";
         private static char FillChar => ' ';
 
-        private static Dictionary<int, int> MinColumnSizes => [];
-
         public void AddRow(Row row)
         {
             rows.Add(row);
@@ -86,16 +84,6 @@
                     {
                         sizes[i] = length;
                     }
-                }
-            }
-
-            for (var i = 0; i < sizes.Count; i++)
-            {
-                if (!MinColumnSizes.TryGetValue(i, out var minSize)) continue;
-
-                if (sizes[i] < minSize)
-                {
-                    sizes[i] = minSize;
                 }
             }
 
