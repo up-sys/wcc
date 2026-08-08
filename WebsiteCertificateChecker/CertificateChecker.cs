@@ -6,6 +6,8 @@ namespace WebsiteCertificateChecker
 {
     public static class CertificateChecker
     {
+        private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(10);
+
         public static CertificateInfo GetCertificateInfo(string url)
         {
             string? issuer = null;
@@ -14,7 +16,18 @@ namespace WebsiteCertificateChecker
             try
             {
                 var uri = new Uri(url);
-                using var client = new TcpClient(uri.Host, uri.Port);
+                using var client = new TcpClient();
+
+                if (!client.ConnectAsync(uri.Host, uri.Port).Wait(ConnectTimeout))
+                {
+                    return new CertificateInfo
+                    {
+                        Url = url,
+                        Issuer = issuer,
+                        ExpirationDate = expiration,
+                    };
+                }
+
                 using var sslStream = new SslStream(client.GetStream());
 
                 sslStream.AuthenticateAsClient(uri.Host);
