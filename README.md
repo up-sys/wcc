@@ -2,11 +2,11 @@
 
 ```cli
 $ wcc google.com apple.com amazon.com facebook.com x.com
-https://amazon.com    Expiration date: 2027-01-24  Remaining days: 325  Issuer: DigiCert Inc
-https://apple.com     Expiration date: 2026-05-27  Remaining days: 84   Issuer: Apple Inc.
-https://x.com         Expiration date: 2026-05-02  Remaining days: 59   Issuer: Let's Encrypt
-https://google.com    Expiration date: 2026-04-27  Remaining days: 53   Issuer: Google Trust Services
-https://facebook.com  Expiration date: 2026-03-12  Remaining days: 7    Issuer: DigiCert Inc
+https://amazon.com    Expiration date: 2026-11-19  Remaining days: 102  Issuer: DigiCert Inc         
+https://google.com    Expiration date: 2026-10-12  Remaining days: 65   Issuer: Google Trust Services
+https://apple.com     Expiration date: 2026-09-15  Remaining days: 38   Issuer: Apple Inc.           
+https://x.com         Expiration date: 2026-08-26  Remaining days: 17   Issuer: Let's Encrypt        
+https://facebook.com  Expiration date: 2026-08-16  Remaining days: 7    Issuer: DigiCert Inc 
 ```
 
 ```cli

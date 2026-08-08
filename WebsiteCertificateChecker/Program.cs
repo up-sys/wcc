@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using WebsiteCertificateChecker;
 
 Console.Title = "Website Certificate Checker";
@@ -7,12 +8,12 @@ var config = new AppConfig(args);
 
 var certificateInfos = new ConcurrentBag<CertificateInfo>();
 
-var startTime = DateTime.Now;
-Parallel.ForEach(config.Urls, url =>
+var stopwatch = Stopwatch.StartNew();
+Parallel.ForEach(config.Urls, new ParallelOptions { MaxDegreeOfParallelism = 20 }, url =>
 {
     certificateInfos.Add(CertificateChecker.GetCertificateInfo(url));
 });
-var endTime = DateTime.Now;
+stopwatch.Stop();
 
 var finalCertificateInfos = certificateInfos.ToList();
 
@@ -38,6 +39,6 @@ table.Write();
 if (config.ShowElapsedTime)
 {
     Console.WriteLine();
-    Console.WriteLine($"Time elapsed: {(endTime - startTime).Seconds}s {(endTime - startTime).Milliseconds}ms");
+    Console.WriteLine($"Time elapsed: {stopwatch.Elapsed.TotalSeconds:0}s {stopwatch.Elapsed.Milliseconds}ms");
 }
 
