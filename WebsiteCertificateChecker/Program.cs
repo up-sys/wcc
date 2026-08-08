@@ -1,5 +1,4 @@
-﻿using ConsoleTable;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using WebsiteCertificateChecker;
 
 Console.Title = "Website Certificate Checker";
@@ -19,9 +18,12 @@ var finalCertificateInfos = certificateInfos.ToList();
 
 if (config.ShowRemainingDays.HasValue)
 {
-    finalCertificateInfos = finalCertificateInfos
-    .Where(c => c.ExpirationDate.GetValueOrDefault().Date < DateTime.Now.AddDays(config.ShowRemainingDays.Value))
-    .ToList();
+    finalCertificateInfos =
+    [
+        .. finalCertificateInfos
+            .Where(c => c.ExpirationDate.GetValueOrDefault().Date <
+                        DateTime.Now.AddDays(config.ShowRemainingDays.Value))
+    ];
 }
 
 var table = new Table();

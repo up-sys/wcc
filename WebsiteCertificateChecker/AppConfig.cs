@@ -12,11 +12,11 @@ public class AppConfig
     {
         if (args.Length == 0) ExitWithMessage("Nothing to do. Try to use -h or --help for help.");
 
-        bool exit = true;
+        var exit = true;
 
         var urlsArgument = new Argument<string[]>("urls")
         {
-            DefaultValueFactory = parseResult => [],
+            DefaultValueFactory = _ => [],
         };
         var fileOption = new Option<FileInfo>("--file", "-f")
         {
@@ -31,11 +31,13 @@ public class AppConfig
             Description = "Show only certificates that expire in _ days",
         };
 
-        var rootCommand = new RootCommand();
-        rootCommand.Add(urlsArgument);
-        rootCommand.Add(fileOption);
-        rootCommand.Add(elapsedTimeOption);
-        rootCommand.Add(remainingDaysOption);
+        var rootCommand = new RootCommand
+        {
+            urlsArgument,
+            fileOption,
+            elapsedTimeOption,
+            remainingDaysOption
+        };
 
         rootCommand.SetAction(parseResult =>
         {
@@ -61,14 +63,14 @@ public class AppConfig
         }
     }
 
-    private void ExitWithMessage(string message)
+    private static void ExitWithMessage(string message)
     {
         Console.WriteLine(message);
         Environment.Exit(1);
     }
 
-    private List<string> GetUrlsFromArgs(string[] args)
+    private static List<string> GetUrlsFromArgs(string[] args)
     {
-        return args.Select(UrlHelper.GetValidUrl).ToList();
+        return [.. args.Select(UrlHelper.GetValidUrl)];
     }
 }

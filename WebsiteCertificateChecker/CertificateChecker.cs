@@ -29,6 +29,7 @@ namespace WebsiteCertificateChecker
             }
             catch
             {
+                // ignored
             }
 
             return new CertificateInfo()
@@ -42,9 +43,9 @@ namespace WebsiteCertificateChecker
         private static string ParseIssuer(string issuer)
         {
             var defaultValue = $"[{issuer}]";
-            var prefix = "O=";
+            const string prefix = "O=";
 
-            var prefixStart = issuer.IndexOf(prefix);
+            var prefixStart = issuer.IndexOf(prefix, StringComparison.Ordinal);
 
             if (prefixStart < 0)
             {

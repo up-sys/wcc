@@ -1,15 +1,13 @@
-﻿using System.CommandLine.Invocation;
-
-namespace ConsoleTable
+﻿namespace WebsiteCertificateChecker
 {
     public class Table
     {
-        private List<Row> rows = [];
+        private readonly List<Row> rows = [];
 
-        public string Separator { get; set; } = "  ";
-        public char FillChar { get; set; } = ' ';
+        private static string Separator => "  ";
+        private static char FillChar => ' ';
 
-        public Dictionary<int, int> MinColumnSizes { get; set; } = [];
+        private static Dictionary<int, int> MinColumnSizes => [];
 
         public void AddRow(Row row)
         {
@@ -22,30 +20,40 @@ namespace ConsoleTable
 
             foreach (var row in rows)
             {
-                for (int i = 0; i < row.cells.Count; i++)
+                for (var i = 0; i < row.cells.Count; i++)
                 {
                     var cell = row.cells[i];
 
                     var fillCount = columnSizes[i] - cell.Text.Length;
 
-                    if (cell.Alignment == TextAlignment.Right)
+                    switch (cell.Alignment)
                     {
-                        Console.Write(new string(FillChar, fillCount));
-                    }
-                    if (cell.Alignment == TextAlignment.Center)
-                    {
-                        Console.Write(new string(FillChar, fillCount / 2));
+                        case TextAlignment.Right:
+                            Console.Write(new string(FillChar, fillCount));
+                            break;
+                        case TextAlignment.Center:
+                            Console.Write(new string(FillChar, fillCount / 2));
+                            break;
+                        case TextAlignment.Left:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
 
                     cell.Text.Write();
 
-                    if (cell.Alignment == TextAlignment.Left)
+                    switch (cell.Alignment)
                     {
-                        Console.Write(new string(FillChar, fillCount));
-                    }
-                    if (cell.Alignment == TextAlignment.Center)
-                    {
-                        Console.Write(new string(FillChar, fillCount - (fillCount / 2)));
+                        case TextAlignment.Left:
+                            Console.Write(new string(FillChar, fillCount));
+                            break;
+                        case TextAlignment.Center:
+                            Console.Write(new string(FillChar, fillCount - (fillCount / 2)));
+                            break;
+                        case TextAlignment.Right:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
 
                     if (i < row.cells.Count - 1)
@@ -64,7 +72,7 @@ namespace ConsoleTable
 
             foreach (var row in rows)
             {
-                for (int i = 0; i < row.cells.Count; i++)
+                for (var i = 0; i < row.cells.Count; i++)
                 {
                     var length = row.cells[i].Text.Length;
 
@@ -81,9 +89,9 @@ namespace ConsoleTable
                 }
             }
 
-            for (int i = 0; i < sizes.Count; i++)
+            for (var i = 0; i < sizes.Count; i++)
             {
-                if (!MinColumnSizes.TryGetValue(i, out int minSize)) continue;
+                if (!MinColumnSizes.TryGetValue(i, out var minSize)) continue;
 
                 if (sizes[i] < minSize)
                 {
@@ -97,16 +105,16 @@ namespace ConsoleTable
 
     public class Row
     {
-        internal List<Cell> cells = [];
+        internal readonly List<Cell> cells = [];
 
-        public void AddCell(Cell cell)
+        private void AddCell(Cell cell)
         {
             cells.Add(cell);
         }
 
         public void AddCell(Text text, TextAlignment alignment = TextAlignment.Left)
         {
-            AddCell(new(text, alignment));
+            AddCell(new Cell(text, alignment));
         }
 
         public void AddEmpty()
@@ -126,18 +134,18 @@ namespace ConsoleTable
 
     public class Text
     {
-        private List<TextFragment> fragments;
+        private readonly List<TextFragment> fragments;
         public int Length { get; private set; }
 
         private Text(int count, int length)
         {
-            fragments = new(count);
+            fragments = new List<TextFragment>(count);
             Length = length;
         }
 
         public Text(string value, ConsoleColor? color)
         {
-            fragments = [new(value, color)];
+            fragments = [new TextFragment(value, color)];
             Length = value.Length;
         }
 

@@ -1,10 +1,8 @@
-using ConsoleTable;
-
 namespace WebsiteCertificateChecker
 {
     public class CertificateInfo
     {
-        public string Url { get; init; } = default!;
+        public string Url { get; init; } = null!;
         public string? Issuer { get; init; }
         public DateTime? ExpirationDate { get; init; }
 
