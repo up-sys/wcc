@@ -11,6 +11,9 @@ https://facebook.com  Expiration date: 2026-08-16  Remaining days: 7    Issuer: 
 
 ```cli
 $ wcc --help
+Description:
+  Website Certificate Checker
+
 Usage:
   wcc [<urls>...] [options]
 
@@ -18,9 +21,9 @@ Arguments:
   <urls>
 
 Options:
-  -?, -h, --help                         Show help and usage information
   -f, --file <file>                      Get urls from file
   -t, --elapsed-time                     Show elapsed time
   -d, --remaining-days <remaining-days>  Show only certificates that expire in _ days
-  --version                              Show version
+  -?, -h, --help                         Show help and usage information
+  --version                              Show version information
 ```

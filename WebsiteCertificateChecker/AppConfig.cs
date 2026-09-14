@@ -31,7 +31,7 @@ public class AppConfig
             Description = "Show only certificates that expire in _ days",
         };
 
-        var rootCommand = new RootCommand
+        var rootCommand = new RootCommand("Website Certificate Checker")
         {
             urlsArgument,
             fileOption,
