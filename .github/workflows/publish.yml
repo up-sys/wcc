@@ -40,16 +40,15 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
             dotnet-version: 10.0.x
-      - name: Restore dependencies
-        run: dotnet restore
       - name: Build
         shell: bash
         run: |
           tag="${{ github.event.release.tag_name }}"
+          version="${tag#v}"
           release_name="wcc-$tag-${{ matrix.target }}"
 
           # Build everything
-          dotnet publish WebsiteCertificateChecker/WebsiteCertificateChecker.csproj --runtime "${{ matrix.target }}" -p:Version="$tag" -p:DebugType=none -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained true -p:IncludeNativeLibrariesForSelfExtract=true -c Release -o "$release_name" -v:detailed
+          dotnet publish WebsiteCertificateChecker/WebsiteCertificateChecker.csproj --runtime "${{ matrix.target }}" -p:Version="$version" -p:DebugType=none -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained true -p:IncludeNativeLibrariesForSelfExtract=true -c Release -o "$release_name"
 
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ] || [ "${{ matrix.target }}" == "win-arm64" ]; then
