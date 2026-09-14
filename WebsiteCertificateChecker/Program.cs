@@ -38,7 +38,6 @@ table.Write();
 
 if (config.ShowElapsedTime)
 {
-    Console.WriteLine();
     Console.WriteLine($"Time elapsed: {stopwatch.Elapsed.TotalSeconds:0}s {stopwatch.Elapsed.Milliseconds}ms");
 }
 
