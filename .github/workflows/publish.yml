@@ -44,11 +44,11 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          tag=$(git describe --tags --abbrev=0)
+          tag="${{ github.event.release.tag_name }}"
           release_name="wcc-$tag-${{ matrix.target }}"
 
           # Build everything
-          dotnet publish WebsiteCertificateChecker/WebsiteCertificateChecker.csproj --runtime "${{ matrix.target }}" -p:Version="$tag" -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained true -p:IncludeNativeLibrariesForSelfExtract=true -c Release -o "$release_name" -p:DebugType=none
+          dotnet publish WebsiteCertificateChecker/WebsiteCertificateChecker.csproj --runtime "${{ matrix.target }}" -p:Version="$tag" -p:DebugType=none -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained true -p:IncludeNativeLibrariesForSelfExtract=true -c Release -o "$release_name"
 
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ] || [ "${{ matrix.target }}" == "win-arm64" ]; then
