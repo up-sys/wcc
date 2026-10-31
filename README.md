@@ -41,6 +41,19 @@ supports. Failed checks show the IP protocol name and `N/A` in red
 `N/A` is padded to the same width as the SSL/TLS version. IPv4 and IPv6
 use separate aligned columns, keeping the protocol names aligned in every row.
 
+On macOS, wcc enables the .NET 10 Network.framework TLS backend at startup,
+before any certificate or DNSSEC checks:
+
+```csharp
+AppContext.SetSwitch("System.Net.Security.UseNetworkFramework", true);
+```
+
+This enables client-side TLS 1.3 for both `SslStream` and `HttpClient`.
+Network.framework supports TLS 1.2 and TLS 1.3 only; a server that supports only
+TLS 1.1 or earlier may therefore show `N/A` on macOS. The switch is enabled only
+on macOS; Windows and Linux keep their platform defaults. See the
+[.NET 10 TLS documentation](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/libraries#tls-13-for-macos-client).
+
 Certificates are compared by SHA-256 fingerprint. If both certificates are
 available but differ, a red `Certificates differ` warning appears next to the
 protocol names. No comparison message appears when the certificates match or

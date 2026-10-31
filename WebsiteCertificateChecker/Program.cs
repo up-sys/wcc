@@ -2,6 +2,12 @@
 using System.Diagnostics;
 using WebsiteCertificateChecker;
 
+if (OperatingSystem.IsMacOS())
+{
+    // Opt in before SslStream or HttpClient initializes its TLS backend.
+    AppContext.SetSwitch("System.Net.Security.UseNetworkFramework", true);
+}
+
 Console.Title = "Website Certificate Checker";
 
 var config = new AppConfig(args);
