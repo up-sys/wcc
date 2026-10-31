@@ -2,15 +2,11 @@
 
 ```cli
 $ wcc google.com apple.com amazon.com facebook.com x.com
-[https://amazon.com    Expiration date: 2026-11-19  Remaining days: 102  Issuer: DigiCert Inc         
-https://google.com    Expiration date: 2026-10-12  Remaining days: 65   Issuer: Google Trust Services
-https://apple.com     Expiration date: 2026-09-15  Remaining days: 38   Issuer: Apple Inc.           
-https://x.com         Expiration date: 2026-08-26  Remaining days: 17   Issuer: Let's Encrypt        
-https://facebook.com  Expiration date: 2026-08-16  Remaining days: 7    Issuer: DigiCert Inc ](https://amazon.com    Expiration date: 2027-04-06  Remaining days: 156  Issuer: DigiCert Inc           IPv4 TLS 1.3  IPv6          DNSSEC
+https://amazon.com    Expiration date: 2027-04-06  Remaining days: 156  Issuer: DigiCert Inc           IPv4 TLS 1.3  IPv6          DNSSEC
 https://google.com    Expiration date: 2026-12-30  Remaining days: 60   Issuer: Google Trust Services  IPv4 TLS 1.3  IPv6 TLS 1.3  DNSSEC
 https://x.com         Expiration date: 2026-12-27  Remaining days: 57   Issuer: Let's Encrypt          IPv4 TLS 1.3  IPv6          DNSSEC
 https://apple.com     Expiration date: 2026-12-23  Remaining days: 53   Issuer: Apple Inc.             IPv4 TLS 1.3  IPv6 TLS 1.3  DNSSEC
-https://facebook.com  Expiration date: 2026-11-08  Remaining days: 7    Issuer: DigiCert Inc           IPv4 TLS 1.3  IPv6 TLS 1.3  DNSSEC)
+https://facebook.com  Expiration date: 2026-11-08  Remaining days: 7    Issuer: DigiCert Inc           IPv4 TLS 1.3  IPv6 TLS 1.3  DNSSEC
 ```
 
 ```cli
