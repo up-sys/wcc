@@ -16,19 +16,19 @@ public class AppConfig
 
         var urlsArgument = new Argument<string[]>("urls")
         {
-            DefaultValueFactory = _ => [],
+            DefaultValueFactory = _ => []
         };
         var fileOption = new Option<FileInfo>("--file", "-f")
         {
-            Description = "Get urls from file",
+            Description = "Get urls from file"
         };
         var elapsedTimeOption = new Option<bool>("--elapsed-time", "-t")
         {
-            Description = "Show elapsed time",
+            Description = "Show elapsed time"
         };
         var remainingDaysOption = new Option<int?>("--remaining-days", "-d")
         {
-            Description = "Show only certificates that expire in _ days",
+            Description = "Show only certificates that expire in _ days"
         };
 
         var rootCommand = new RootCommand("Website Certificate Checker")
