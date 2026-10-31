@@ -4,8 +4,12 @@ namespace WebsiteCertificateChecker;
 
 public class CertificateInfo
 {
+    private const string UnsupportedProtocol = " N/A";
+    private const int ProtocolInfoWidth = 8;
+
     public string Url { get; init; } = null!;
     public string? Issuer { get; init; }
+    public bool IsIssuerTrusted { get; init; } = true;
     public DateTime? ExpirationDate { get; init; }
 
     public bool? IPv4Success { get; init; }
@@ -41,6 +45,19 @@ public class CertificateInfo
         return version == null ? string.Empty : $" {version}";
     }
 
+    private static Text FormatProtocolText(SslProtocols? sslProtocol)
+    {
+        ConsoleColor? color = sslProtocol?.ToString() switch
+        {
+            "Ssl2" or "Ssl3" or "Tls" or "Tls11" => ConsoleColor.Red,
+            "Tls12" => ConsoleColor.Yellow,
+            "Tls13" => ConsoleColor.Green,
+            _ => null
+        };
+
+        return new Text(FormatProtocol(sslProtocol).PadRight(ProtocolInfoWidth), color);
+    }
+
     public Row ToRow()
     {
         var row = new Row();
@@ -59,7 +76,9 @@ public class CertificateInfo
 
         if (Issuer != null)
         {
-            row.AddCell($"Issuer: {Issuer}");
+            row.AddCell(IsIssuerTrusted
+                ? $"Issuer: {Issuer}"
+                : "Issuer: " + new Text($"NOT TRUSTED {Issuer}", ConsoleColor.Red));
         }
         else
         {
@@ -69,10 +88,14 @@ public class CertificateInfo
         if (IPv4Success.HasValue && IPv6Success.HasValue)
         {
             row.AddCell(new Text("IPv4", IPv4Success.Value ? ConsoleColor.Green : ConsoleColor.Red)
-                        + FormatProtocol(IPv4SslProtocol));
+                        + (IPv4Success.Value
+                            ? FormatProtocolText(IPv4SslProtocol)
+                            : new Text(UnsupportedProtocol.PadRight(ProtocolInfoWidth), ConsoleColor.Red)));
 
             var ipv6 = new Text("IPv6", IPv6Success.Value ? ConsoleColor.Green : ConsoleColor.Red)
-                       + FormatProtocol(IPv6SslProtocol);
+                       + (IPv6Success.Value
+                           ? FormatProtocolText(IPv6SslProtocol)
+                           : new Text(UnsupportedProtocol.PadRight(ProtocolInfoWidth), ConsoleColor.Red));
 
             if (CertificatesMatch == false)
             {
@@ -82,13 +105,13 @@ public class CertificateInfo
             row.AddCell(ipv6);
         }
 
-        row.AddCell(new Text("DNSSEC", Dnssec switch
+        row.AddCell(Dnssec switch
         {
-            DnssecStatus.Valid => ConsoleColor.Green,
-            DnssecStatus.Unsigned => ConsoleColor.Gray,
-            DnssecStatus.Invalid => ConsoleColor.Red,
-            _ => ConsoleColor.Yellow
-        }));
+            DnssecStatus.Valid => new Text("DNSSEC valid", ConsoleColor.Green),
+            DnssecStatus.Unsigned => new Text("DNSSEC unsigned", ConsoleColor.Gray),
+            DnssecStatus.Invalid => new Text("DNSSEC invalid", ConsoleColor.Red),
+            _ => new Text("DNSSEC unknown", ConsoleColor.Yellow)
+        });
 
         return row;
     }

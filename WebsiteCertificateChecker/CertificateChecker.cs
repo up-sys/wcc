@@ -49,17 +49,21 @@ public static class CertificateChecker
         // Report the certificate that expires first so expiry filtering covers both protocols.
         var certificate = ipv4 == null ? ipv6 :
             ipv6 == null || ipv4.ExpirationDate <= ipv6.ExpirationDate ? ipv4 : ipv6;
+        // Keep an untrusted issuer visible even if the other protocol has an earlier expiry.
+        var issuerCertificate = ipv4 is { IsTrusted: false } ? ipv4 :
+            ipv6 is { IsTrusted: false } ? ipv6 : certificate;
 
         return new CertificateInfo
         {
             Url = url,
-            Issuer = certificate?.Issuer,
+            Issuer = issuerCertificate?.Issuer,
+            IsIssuerTrusted = issuerCertificate?.IsTrusted ?? true,
             ExpirationDate = certificate?.ExpirationDate,
             Dnssec = dnssec,
-            IPv4Success = checkProtocols ? ipv4 != null : null,
-            IPv6Success = checkProtocols ? ipv6 != null : null,
-            IPv4SslProtocol = checkProtocols ? ipv4?.SslProtocol : null,
-            IPv6SslProtocol = checkProtocols ? ipv6?.SslProtocol : null,
+            IPv4Success = checkProtocols ? ipv4 is { IsTrusted: true } : null,
+            IPv6Success = checkProtocols ? ipv6 is { IsTrusted: true } : null,
+            IPv4SslProtocol = checkProtocols && ipv4 is { IsTrusted: true } ? ipv4.SslProtocol : null,
+            IPv6SslProtocol = checkProtocols && ipv6 is { IsTrusted: true } ? ipv6.SslProtocol : null,
             CertificatesMatch = ipv4 != null && ipv6 != null
                 ? ipv4.Fingerprint == ipv6.Fingerprint
                 : null
@@ -74,11 +78,29 @@ public static class CertificateChecker
             using var client = addressFamily.HasValue ? new TcpClient(addressFamily.Value) : new TcpClient();
             await client.ConnectAsync(uri.IdnHost, uri.Port, timeout.Token).ConfigureAwait(false);
 
-            await using var sslStream = new SslStream(client.GetStream());
-            await sslStream.AuthenticateAsClientAsync(new SslClientAuthenticationOptions
+            CertificateResult? untrustedCertificate = null;
+            await using var sslStream = new SslStream(client.GetStream(), false, (_, remoteCertificate, chain, errors) =>
             {
-                TargetHost = uri.IdnHost
-            }, timeout.Token).ConfigureAwait(false);
+                if (remoteCertificate == null || chain == null || chain.ChainStatus.All(status => (status.Status & (X509ChainStatusFlags.UntrustedRoot | X509ChainStatusFlags.PartialChain)) == 0))
+                    return errors == SslPolicyErrors.None;
+                using var cert = new X509Certificate2(remoteCertificate);
+                untrustedCertificate = new CertificateResult(ParseIssuer(cert.Issuer), cert.NotAfter,
+                    cert.GetCertHashString(HashAlgorithmName.SHA256), SslProtocols.None, false);
+
+                // Inspect failed validation without accepting the untrusted connection.
+                return errors == SslPolicyErrors.None;
+            });
+            try
+            {
+                await sslStream.AuthenticateAsClientAsync(new SslClientAuthenticationOptions
+                {
+                    TargetHost = uri.IdnHost
+                }, timeout.Token).ConfigureAwait(false);
+            }
+            catch (AuthenticationException) when (untrustedCertificate != null)
+            {
+                return untrustedCertificate;
+            }
 
             if (sslStream.RemoteCertificate == null)
             {
@@ -87,7 +109,7 @@ public static class CertificateChecker
 
             using var cert = new X509Certificate2(sslStream.RemoteCertificate);
             return new CertificateResult(ParseIssuer(cert.Issuer), cert.NotAfter,
-                cert.GetCertHashString(HashAlgorithmName.SHA256), sslStream.SslProtocol);
+                cert.GetCertHashString(HashAlgorithmName.SHA256), sslStream.SslProtocol, true);
         }
         catch
         {
@@ -124,7 +146,7 @@ public static class CertificateChecker
     }
 
     private sealed record CertificateResult(
-        string Issuer, DateTime ExpirationDate, string Fingerprint, SslProtocols SslProtocol);
+        string Issuer, DateTime ExpirationDate, string Fingerprint, SslProtocols SslProtocol, bool IsTrusted);
 
     private static string ParseIssuer(string issuer)
     {
