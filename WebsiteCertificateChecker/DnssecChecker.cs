@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace WebsiteCertificateChecker;
@@ -54,9 +53,10 @@ public static class DnssecChecker
             // Keep HTTPS certificate validation enabled: we trust this resolver's validation result.
             using var response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            using var document = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken)
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-            return document == null ? DnssecStatus.Unknown : ParseResponse(document.RootElement);
+            return ParseResponse(document.RootElement);
         }
         catch (Exception exception) when (exception is HttpRequestException or OperationCanceledException
                                          or JsonException or NotSupportedException or IOException)
